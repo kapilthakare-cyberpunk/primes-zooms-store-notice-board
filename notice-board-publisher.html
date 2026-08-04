@@ -156,7 +156,8 @@
     <div class="preview-header no-print">
       <h1>Published Poster</h1>
       <div class="preview-actions">
-        <button class="btn-primary" onclick="printPoster()">Print A3 Poster</button>
+        <button class="btn-primary" onclick="downloadA3PDF()">Download A3 PDF</button>
+        <button class="btn-secondary" onclick="printPoster()">Print A3 Poster</button>
         <button class="btn-secondary" onclick="downloadPosterHTML()">Download Poster HTML</button>
         <button class="btn-ghost" onclick="downloadStripsHTML()">Download Strips HTML</button>
         <button class="btn-ghost" onclick="backToEditor()">Back to Editor</button>
@@ -350,6 +351,23 @@ function printPoster() {
   win.document.close();
   win.focus();
   setTimeout(() => win.print(), 400);
+}
+
+function downloadA3PDF() {
+  const win = window.open('', '_blank', 'width=1123,height=1587');
+  if (!win) { alert('Please allow popups to download the PDF.'); return; }
+  win.document.write(window._posterHTML);
+  win.document.close();
+  win.focus();
+  setTimeout(async () => {
+    const pdfBlob = await win.printToPDF({ width: '1123px', height: '1587px', printBackground: true });
+    const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = win.document.createElement('a');
+    a.href = url; a.download = 'primes-and-zooms-notice-board-a3.pdf'; a.click();
+    URL.revokeObjectURL(url);
+    win.close();
+  }, 600);
 }
 
 function download(filename, content) {
