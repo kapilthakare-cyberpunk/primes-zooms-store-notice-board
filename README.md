@@ -48,8 +48,10 @@ Printable strips that match the poster slot dimensions exactly. Cut along dashed
 
 When new products arrive, edit `items.json`:
 1. Add/update the `items` array with product info (slot, name, desc, url)
+   - Ensure each item has a unique slot number (1-5) and that no items are repeated
+   - **Sort items by rental price (5-day rate) in descending order**: most expensive items get Slot 1 (top position), followed by next highest in Slot 2, etc.
 2. Run: `make strips` (or `python3 generate-pdf.py`)
-3. The script outputs `Primes & Zooms — Notice Board Strips.pdf`
+3. The script outputs a timestamped PDF: `Primes & Zooms — Notice Board Strips_YYYYMMDD_HHMMSS.pdf`
 
 Dependencies: `pip3 install qrcode weasyprint --break-system-packages`
 
@@ -64,3 +66,9 @@ Dependencies: `pip3 install qrcode weasyprint --break-system-packages`
 - Primary: Red `#cb1513`, Dark `#222`
 - Fonts: Barlow Semi Condensed (headings), Open Sans (body)
 - URL: https://primesandzooms.com
+
+## File Persistence
+
+- **HTML files** (`new-arrivals-qr-strips.html`, `notice-board-publisher.html`, `poster.html`) remain in the project until explicitly deleted by the user
+- **PDF outputs** are timestamped to preserve generation history: `Primes & Zooms — Notice Board Strips_YYYYMMDD_HHMMSS.pdf`
+- Use `make clean` to remove all PDF files if needed (HTML files are preserved)

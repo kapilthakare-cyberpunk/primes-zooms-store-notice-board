@@ -7,6 +7,7 @@ from io import BytesIO
 import base64
 from pathlib import Path
 from weasyprint import HTML
+from datetime import datetime
 
 POSTER_SLOT_WIDTH_MM = 255
 POSTER_SLOT_HEIGHT_MM = 54
@@ -146,7 +147,10 @@ if __name__ == "__main__":
     validate_dimensions(items)
 
     html_str = build_html(items)
-    out_path = Path(__file__).parent / "Primes & Zooms — Notice Board Strips.pdf"
+    
+    # Generate timestamp for filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_path = Path(__file__).parent / f"Primes & Zooms — Notice Board Strips_{timestamp}.pdf"
 
     html = HTML(string=html_str, base_url=str(Path(__file__).parent))
     html.write_pdf(str(out_path))
