@@ -170,7 +170,31 @@
 
 <script>
 const SLOTS = 5;
-let items = Array.from({length: SLOTS}, (_, i) => ({ slot: i+1, name: '', desc: '', url: '' }));
+let items = []; // will be filled by fetching items.json
+
+// On page load, fetch items.json and then initialize the form
+fetch('items.json')
+  .then(response => response.json())
+  .then(data => {
+    items = data.items || []; // in case the structure is different
+    // If we don't have exactly 5 items, we will still initialize the form with what we have, but the form expects 5 rows.
+    // We will adjust: if we have less than 5, we will pad with empty items.
+    // If we have more than 5, we will take the first 5.
+    if (items.length < SLOTS) {
+      const padding = Array.from({length: SLOTS - items.length}, (_, i) => ({ slot: i+items.length+1, name: '', desc: '', url: '' }));
+      items = items.concat(padding);
+    } else if (items.length > SLOTS) {
+      items = items.slice(0, SLOTS);
+    }
+    // Now we have exactly SLOTS items
+    initRows();
+  })
+  .catch(err => {
+    console.error('Failed to load items.json:', err);
+    // If there's an error, we'll start with 5 empty items
+    items = Array.from({length: SLOTS}, (_, i) => ({ slot: i+1, name: '', desc: '', url: '' }));
+    initRows();
+  });
 
 function initRows() {
   const wrap = document.getElementById('rows');
@@ -245,7 +269,7 @@ function buildPosterHTML() {
 <style>
   @page { size: 297mm 420mm; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { width: 1123px; height: 1587px; overflow: hidden; }
+  html { width:  = 1123px; height: 1587px; overflow: hidden; }
   body { width: 1123px; height: 1587px; font-family: 'Open Sans', sans-serif; background: #ffffff; margin: 0; padding: 0; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .poster { width: 1123px; height: 1587px; display: flex; flex-direction: column; margin: 0; padding: 0; overflow: hidden; }
   .header { background: #cb1513; height: 140px; padding: 0 90px; display: flex; align-items: center; justify-content: center; gap: 45px; flex-shrink: 0; }
@@ -269,7 +293,7 @@ function buildPosterHTML() {
 </head>
 <body>
   <div class="poster">
-    <div class="header"><div class="brand-text">Primes &amp; Zooms</div></div>
+    <div class="header"><div class="brand-text">Primes & Zooms</div></div>
     <div class="title-section"><h1>New Arrivals</h1><div class="sub">Fresh gear just added to our rental inventory</div></div>
     <div class="divider"></div>
     <div class="slots">${slots}</div>
@@ -326,8 +350,8 @@ function buildStripsHTML() {
 </style>
 </head>
 <body>
-  <div class="page-title">Primes &amp; Zooms — New Arrivals</div>
-  <div class="page-sub">Notice Board Strips · Cut &amp; Pin onto A3 Poster</div>
+  <div class="page-title">Primes & Zooms — New Arrivals</div>
+  <div class="page-sub">Notice Board Strips · Cut & Pin onto A3 Poster</div>
   <div class="strips-wrap" id="stripsWrap">${stripDivs}</div>
   <div class="page-instructions">★ A3 · Print at 100% scale (no fit-to-page) · Cut strips · Pin onto notice board</div>
 <script>
@@ -341,7 +365,7 @@ function buildStripsHTML() {
 }
 
 function escapeHTML(str) {
-  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  return str.replace(/[&<>"']/g, m => ({'&':'&','<':'<','>':'>','"':'"',"'":'''}[m]));
 }
 
 function printPoster() {
@@ -394,8 +418,6 @@ function resetForm() {
   document.getElementById('error').style.display = 'none';
   document.getElementById('success').style.display = 'none';
 }
-
-initRows();
 </script>
 </body>
 </html>
